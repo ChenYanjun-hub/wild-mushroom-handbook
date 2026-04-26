@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>野生菌数字手帐 - UI设计预览</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --safe-primary: #9B7ED9;
+            --safe-light: #C8B8E8;
+            --safe-bg: #E8DFF5;
+            --safe-green: #4A7C59;
+            --safe-cream: #F5F0E8;
+            --safe-brown: #8B7355;
+
+            --danger-red: #C62828;
+            --danger-orange: #E65100;
+            --danger-yellow: #FFD600;
+            --danger-dark: #1A0000;
+
+            --text-dark: #1A1A1A;
+            --text-medium: #666666;
+            --text-light: #E0E0E0;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, sans-serif;
+            background: #FAFAFA;
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        /* Header */
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid var(--text-light);
+            padding: 32px 40px;
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: var(--text-medium);
+        }
+
+        /* Preview Grid */
+        .preview-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .section-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-medium);
+            margin-bottom: 24px;
+        }
+
+        .phones-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+
+        @media (max-width: 1200px) {
+            .phones-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 800px) {
+            .phones-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Phone Frame */
+        .phone-card {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .phone-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-dark);
+            padding-left: 4px;
+        }
+
+        .phone-label span {
+            color: var(--text-medium);
+            font-weight: 400;
+        }
+
+        .iphone-frame {
+            width: 100%;
+            max-width: 375px;
+            height: 780px;
+            background: #000;
+            border-radius: 44px;
+            padding: 12px;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .iphone-frame::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 28px;
+            background: #000;
+            border-radius: 0 0 16px 16px;
+            z-index: 100;
+        }
+
+        .iphone-screen {
+            width: 100%;
+            height: 100%;
+            border-radius: 36px;
+            overflow: hidden;
+            position: relative;
+            background: var(--white);
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 28px;
+            padding-top: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            position: relative;
+            z-index: 50;
+        }
+
+        .status-icons {
+            display: flex;
+            gap: 4px;
+            font-size: 12px;
+        }
+
+        /* ============ SAFE PAGE ============ */
+        .safe-page {
+            height: 100%;
+            background: linear-gradient(165deg, #F5F0F8 0%, #FAF8F5 40%, #EDE8F4 100%);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .safe-page .status-bar {
+            color: var(--text-dark);
+        }
+
+        .page-header {
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dark);
+        }
+
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .page-content {
+            flex: 1;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Sticker Component */
+        .sticker-container {
+            position: relative;
+            margin: 8px 0 24px;
+        }
+
+        .sticker {
+            width: 180px;
+            height: 180px;
+            background: var(--white);
+            border-radius: 16px;
+            padding: 10px;
+            box-shadow:
+                0 2px 8px rgba(0,0,0,0.06),
+                0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        .sticker-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(145deg, #F8F6F4 0%, #EBE6E0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sticker-image::before {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(ellipse at center, #D4C4A8 0%, #B8A88C 40%, #9C8B70 70%, transparent 71%);
+            border-radius: 50% 40% 50% 40%;
+            opacity: 0.8;
+        }
+
+        .sticker-image::after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 80px;
+            background: radial-gradient(ellipse at center, #8B7355 0%, #6B5344 60%, transparent 70%);
+            border-radius: 30% 40% 50% 40%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.9;
+        }
+
+        /* Name Section */
+        .species-name {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .species-name h2 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .species-name .scientific {
+            font-style: italic;
+            font-size: 14px;
+            color: var(--text-medium);
+        }
+
+        .divider {
+            width: 60px;
+            height: 1px;
+            background: var(--text-light);
+            margin: 12px 0;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(74, 124, 89, 0.1);
+            color: var(--safe-green);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .status-badge svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .match-score {
+            font-size: 13px;
+            color: var(--text-medium);
+            margin-bottom: 20px;
+        }
+
+        /* Info Card */
+        .info-card {
+            width: 100%;
+            background: rgba(255,255,255,0.8);
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row .icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .info-row .icon svg {
+            width: 18px;
+            height: 18px;
+            color: var(--safe-primary);
+        }
+
+        .info-row .label {
+            width: 48px;
+            font-size: 13px;
+            color: var(--text-medium);
+        }
+
+        .info-row .value {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        /* Action Bar */
+        .action-bar {
+            display: flex;
+            gap: 12px;
+            padding: 16px 20px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: var(--safe-primary);
+            color: var(--white);
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #8A6BC9;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            width: 52px;
+            height: 52px;
+            background: rgba(155, 126, 217, 0.08);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(155, 126, 217, 0.15);
+        }
+
+        .btn-secondary svg {
+            width: 20px;
+            height: 20px;
+            color: var(--safe-primary);
+        }
+
+        /* ============ DANGER PAGE ============ */
+        .danger-page {
+            height: 100%;
+            background: linear-gradient(180deg, #1A0000 0%, #3D0000 40%, #C62828 100%);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .danger-page .status-bar {
+            color: var(--white);
+        }
+
+        .danger-page .page-header {
+            color: var(--white);
+        }
+
+        /* Danger Sticker */
+        .danger-sticker {
+            position: relative;
+        }
+
+        .danger-overlay {
+            position: absolute;
+            inset: 0;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .danger-overlay::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                repeating-linear-gradient(
+                    45deg,
+                    transparent 0px,
+                    transparent 10px,
+                    rgba(255, 214, 0, 0.85) 10px,
+                    rgba(255, 214, 0, 0.85) 20px
+                );
+        }
+
+        .danger-tape {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-8deg);
+            background: var(--danger-red);
+            color: var(--white);
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 3px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .danger-page .species-name h2 {
+            color: var(--white);
+        }
+
+        .danger-page .species-name .scientific {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .danger-page .divider {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .danger-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(198, 40, 40, 0.4);
+            color: var(--white);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .danger-badge svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .death-rate {
+            font-size: 13px;
+            color: var(--danger-yellow);
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .warning-card {
+            background: rgba(0,0,0,0.35);
+            border: 1px solid rgba(198, 40, 40, 0.6);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+            text-align: center;
+        }
+
+        .warning-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 12px;
+            border-radius: 50%;
+            background: var(--danger-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .warning-icon svg {
+            width: 24px;
+            height: 24px;
+            color: var(--white);
+        }
+
+        .warning-title {
+            color: var(--white);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .warning-desc {
+            color: rgba(255,255,255,0.6);
+            font-size: 12px;
+        }
+
+        /* Slide Unlock */
+        .slide-unlock {
+            height: 52px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 26px;
+            margin-top: auto;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide-text {
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .slide-knob {
+            position: absolute;
+            left: 4px;
+            width: 44px;
+            height: 44px;
+            background: var(--danger-red);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse-danger 2s ease-in-out infinite;
+        }
+
+        .slide-knob svg {
+            width: 18px;
+            height: 18px;
+            color: var(--white);
+        }
+
+        @keyframes pulse-danger {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.6);
+            }
+            50% {
+                box-shadow: 0 0 0 12px rgba(198, 40, 40, 0);
+            }
+        }
+
+        .danger-page .action-bar {
+            background: rgba(0,0,0,0.25);
+            border-top-color: rgba(255,255,255,0.1);
+        }
+
+        .danger-page .btn-primary {
+            background: var(--danger-red);
+        }
+
+        .danger-page .btn-primary:hover {
+            background: #B71C1C;
+        }
+
+        .danger-page .btn-secondary {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .danger-page .btn-secondary svg {
+            color: var(--white);
+        }
+
+        /* ============ HANDBOOK PAGE ============ */
+        .handbook-page {
+            height: 100%;
+            background: var(--safe-cream);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .handbook-page .status-bar {
+            color: var(--text-dark);
+        }
+
+        .handbook-header {
+            text-align: center;
+            padding: 16px 20px 20px;
+        }
+
+        .handbook-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .handbook-stats {
+            font-size: 13px;
+            color: var(--text-medium);
+        }
+
+        .handbook-stats strong {
+            color: var(--safe-primary);
+            font-weight: 600;
+        }
+
+        /* Tab Bar */
+        .tab-bar {
+            display: flex;
+            padding: 0 16px;
+            gap: 8px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-medium);
+        }
+
+        .tab-btn.active {
+            background: rgba(155, 126, 217, 0.1);
+            color: var(--safe-primary);
+        }
+
+        .tab-btn.active.danger-tab {
+            background: rgba(198, 40, 40, 0.08);
+            color: var(--danger-red);
+        }
+
+        .tab-btn .count {
+            display: block;
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .section-header {
+            padding: 20px 20px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-medium);
+            letter-spacing: 1px;
+        }
+
+        /* Sticker Grid */
+        .sticker-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 0 16px;
+            overflow-y: auto;
+            flex: 1;
+            padding-bottom: 16px;
+        }
+
+        .sticker-card {
+            background: var(--white);
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sticker-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .mini-sticker {
+            width: 72px;
+            height: 72px;
+            background: var(--white);
+            border-radius: 10px;
+            margin: 0 auto 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mini-sticker::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(145deg, #F8F6F4 0%, #EBE6E0 100%);
+        }
+
+        .mini-sticker::after {
+            content: '';
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            background: radial-gradient(ellipse at center, #C4B498 0%, #9C8B70 50%, transparent 60%);
+            border-radius: 50% 40% 50% 40%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .sticker-card .name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 2px;
+        }
+
+        .sticker-card .date {
+            font-size: 11px;
+            color: var(--text-medium);
+        }
+
+        /* Danger Card */
+        .sticker-card.danger-card .mini-sticker::after {
+            background: radial-gradient(ellipse at center, #8B4545 0%, #5C2C2C 50%, transparent 60%);
+        }
+
+        .sticker-card.danger-card .name {
+            color: var(--danger-red);
+        }
+
+        .danger-indicator {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 8px;
+            height: 8px;
+            background: var(--danger-red);
+            border-radius: 50%;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            display: flex;
+            background: var(--white);
+            padding: 8px 16px 28px;
+            border-top: 1px solid var(--text-light);
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-item svg {
+            width: 22px;
+            height: 22px;
+            color: var(--text-medium);
+        }
+
+        .nav-item span {
+            font-size: 10px;
+            color: var(--text-medium);
+        }
+
+        .nav-item.active svg {
+            color: var(--safe-primary);
+        }
+
+        .nav-item.active span {
+            color: var(--safe-primary);
+            font-weight: 500;
+        }
+
+        /* Design System Section */
+        .design-system {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+            border-top: 1px solid var(--text-light);
+        }
+
+        .ds-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+        }
+
+        @media (max-width: 800px) {
+            .ds-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .color-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+
+        .color-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .color-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .color-swatch {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+        }
+
+        .color-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .color-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .color-hex {
+            font-size: 11px;
+            font-family: 'SF Mono', Monaco, monospace;
+            color: var(--text-medium);
+        }
+
+        /* Typography */
+        .typography-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+
+        .type-item {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--text-light);
+        }
+
+        .type-label {
+            width: 80px;
+            font-size: 12px;
+            color: var(--text-medium);
+        }
+
+        .type-sample {
+            color: var(--text-dark);
+        }
+
+        .type-sample.size-26 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 26px;
+            font-weight: 600;
+        }
+
+        .type-sample.size-16 {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .type-sample.size-14 {
+            font-size: 14px;
+        }
+
+        .type-sample.size-13 {
+            font-size: 13px;
+            color: var(--text-medium);
+        }
+
+        .type-sample.size-12 {
+            font-size: 12px;
+            color: var(--text-medium);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-inner">
+            <h1>野生菌数字手帐</h1>
+            <p>UI设计预览 · 双重人格设计系统</p>
+        </div>
+    </div>
+
+    <div class="preview-section">
+        <div class="section-label">Screen Previews</div>
+        <div class="phones-grid">
+
+            <!-- Safe Page -->
+            <div class="phone-card">
+                <div class="phone-label">安全态 · 识别结果</div>
+                <div class="iphone-frame">
+                    <div class="iphone-screen">
+                        <div class="safe-page">
+                            <div class="status-bar">
+                                <span>10:30</span>
+                                <div class="status-icons">
+                                    <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4" y="2" width="3" height="10" rx="1"/><rect x="8" y="0" width="3" height="12" rx="1"/><rect x="12" y="0" width="3" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+                                    <svg width="20" height="12" viewBox="0 0 20 12"><rect x="0" y="0" width="18" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1"/><rect x="18" y="4" width="2" height="4" rx="1"/><rect x="2" y="2" width="12" height="8" rx="1"/></svg>
+                                </div>
+                            </div>
+
+                            <div class="page-header">
+                                <div class="back-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+                                </div>
+                            </div>
+
+                            <div class="page-content">
+                                <div class="sticker-container">
+                                    <div class="sticker">
+                                        <div class="sticker-image"></div>
+                                    </div>
+                                </div>
+
+                                <div class="species-name">
+                                    <h2>牛肝菌</h2>
+                                    <div class="scientific">Boletus edulis</div>
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <div class="status-badge">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                                    可食用
+                                </div>
+
+                                <div class="match-score">匹配度 92%</div>
+
+                                <div class="info-card">
+                                    <div class="info-row">
+                                        <div class="icon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+                                        </div>
+                                        <span class="label">位置</span>
+                                        <span class="value">云南大理</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="icon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                                        </div>
+                                        <span class="label">海拔</span>
+                                        <span class="value">2400m</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="icon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                        </div>
+                                        <span class="label">时间</span>
+                                        <span class="value">2026.04.26 10:30</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="action-bar">
+                                <button class="btn-primary">收录到手帐</button>
+                                <button class="btn-secondary">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16,6 12,2 8,6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger Page -->
+            <div class="phone-card">
+                <div class="phone-label">警示态 · 识别结果</div>
+                <div class="iphone-frame">
+                    <div class="iphone-screen">
+                        <div class="danger-page">
+                            <div class="status-bar">
+                                <span>10:30</span>
+                                <div class="status-icons">
+                                    <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4" y="2" width="3" height="10" rx="1"/><rect x="8" y="0" width="3" height="12" rx="1"/><rect x="12" y="0" width="3" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+                                    <svg width="20" height="12" viewBox="0 0 20 12"><rect x="0" y="0" width="18" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1"/><rect x="18" y="4" width="2" height="4" rx="1"/><rect x="2" y="2" width="12" height="8" rx="1"/></svg>
+                                </div>
+                            </div>
+
+                            <div class="page-content">
+                                <div class="sticker-container danger-sticker">
+                                    <div class="sticker">
+                                        <div class="sticker-image" style="background: linear-gradient(145deg, #8B4545 0%, #5C2C2C 100%);"></div>
+                                    </div>
+                                    <div class="danger-overlay">
+                                        <div class="danger-tape">DANGER</div>
+                                    </div>
+                                </div>
+
+                                <div class="species-name">
+                                    <h2>白毒伞</h2>
+                                    <div class="scientific">Amanita verna</div>
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <div class="danger-badge">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                                    致命剧毒
+                                </div>
+
+                                <div class="death-rate">死亡率高达 90%</div>
+
+                                <div class="warning-card">
+                                    <div class="warning-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                                    </div>
+                                    <div class="warning-title">绝对禁止食用</div>
+                                    <div class="warning-desc">含致命毒素 alpha-amanitin</div>
+                                </div>
+
+                                <div class="slide-unlock">
+                                    <div class="slide-knob">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                                    </div>
+                                    <span class="slide-text">滑动以解锁详情</span>
+                                </div>
+                            </div>
+
+                            <div class="action-bar">
+                                <button class="btn-primary">收录至禁忌篇章</button>
+                                <button class="btn-secondary">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16,6 12,2 8,6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Handbook Page -->
+            <div class="phone-card">
+                <div class="phone-label">电子手帐 · 主页</div>
+                <div class="iphone-frame">
+                    <div class="iphone-screen">
+                        <div class="handbook-page">
+                            <div class="status-bar">
+                                <span>10:30</span>
+                                <div class="status-icons">
+                                    <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4" y="2" width="3" height="10" rx="1"/><rect x="8" y="0" width="3" height="12" rx="1"/><rect x="12" y="0" width="3" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+                                    <svg width="20" height="12" viewBox="0 0 20 12"><rect x="0" y="0" width="18" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1"/><rect x="18" y="4" width="2" height="4" rx="1"/><rect x="2" y="2" width="12" height="8" rx="1"/></svg>
+                                </div>
+                            </div>
+
+                            <div class="handbook-header">
+                                <div class="handbook-title">我的野生菌手帐</div>
+                                <div class="handbook-stats">已收录 <strong>42</strong> 种 · 探索 <strong>7</strong> 地</div>
+                            </div>
+
+                            <div class="tab-bar">
+                                <button class="tab-btn active">
+                                    可食用
+                                    <span class="count">38</span>
+                                </button>
+                                <button class="tab-btn danger-tab">
+                                    禁忌
+                                    <span class="count">4</span>
+                                </button>
+                            </div>
+
+                            <div class="section-header">可食用图谱</div>
+
+                            <div class="sticker-grid">
+                                <div class="sticker-card">
+                                    <div class="mini-sticker"></div>
+                                    <div class="name">牛肝菌</div>
+                                    <div class="date">2026.04.26</div>
+                                </div>
+                                <div class="sticker-card">
+                                    <div class="mini-sticker"></div>
+                                    <div class="name">鸡枞菌</div>
+                                    <div class="date">2026.04.25</div>
+                                </div>
+                                <div class="sticker-card">
+                                    <div class="mini-sticker"></div>
+                                    <div class="name">松茸</div>
+                                    <div class="date">2026.04.24</div>
+                                </div>
+                                <div class="sticker-card danger-card">
+                                    <div class="mini-sticker">
+                                        <div class="danger-indicator"></div>
+                                    </div>
+                                    <div class="name">白毒伞</div>
+                                    <div class="date">2026.04.22</div>
+                                </div>
+                                <div class="sticker-card">
+                                    <div class="mini-sticker"></div>
+                                    <div class="name">干巴菌</div>
+                                    <div class="date">2026.04.21</div>
+                                </div>
+                                <div class="sticker-card">
+                                    <div class="mini-sticker"></div>
+                                    <div class="name">青头菌</div>
+                                    <div class="date">2026.04.20</div>
+                                </div>
+                            </div>
+
+                            <div class="bottom-nav">
+                                <div class="nav-item">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                                    <span>首页</span>
+                                </div>
+                                <div class="nav-item active">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                                    <span>手帐</span>
+                                </div>
+                                <div class="nav-item">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                    <span>拍照</span>
+                                </div>
+                                <div class="nav-item">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    <span>我的</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Design System -->
+    <div class="design-system">
+        <div class="ds-grid">
+            <div class="color-section">
+                <h3>安全态色板</h3>
+                <div class="color-grid">
+                    <div class="color-item">
+                        <div class="color-swatch" style="background: #9B7ED9;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Primary</div>
+                            <div class="color-hex">#9B7ED9</div>
+                        </div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch" style="background: #C8B8E8;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Light</div>
+                            <div class="color-hex">#C8B8E8</div>
+                        </div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch" style="background: #E8DFF5;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Background</div>
+                            <div class="color-hex">#E8DFF5</div>
+                        </div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch" style="background: #4A7C59;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Safe Green</div>
+                            <div class="color-hex">#4A7C59</div>
+                        </div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch" style="background: #F5F0E8;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Cream</div>
+                            <div class="color-hex">#F5F0E8</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="color-section">
+                <h3>警示态色板</h3>
+                <div class="color-grid">
+                    <div class="color-item">
+                        <div class="color-swatch" style="background: #C62828;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Danger Red</div>
+                            <div class="color-hex">#C62828</div>
+                        </div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch" style="background: #E65100;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Warning</div>
+                            <div class="color-hex">#E65100</div>
+                        </div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch" style="background: #FFD600;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Fluorescent</div>
+                            <div class="color-hex">#FFD600</div>
+                        </div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch" style="background: #1A0000;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Dark Red</div>
+                            <div class="color-hex">#1A0000</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="typography-section">
+                <h3>字体规范</h3>
+                <div class="type-item">
+                    <span class="type-label">标题 H1</span>
+                    <span class="type-sample size-26">牛肝菌</span>
+                </div>
+                <div class="type-item">
+                    <span class="type-label">正文</span>
+                    <span class="type-sample size-16">可食用</span>
+                </div>
+                <div class="type-item">
+                    <span class="type-label">辅助文字</span>
+                    <span class="type-sample size-14">匹配度 92%</span>
+                </div>
+                <div class="type-item">
+                    <span class="type-label">说明文字</span>
+                    <span class="type-sample size-13">云南大理 · 海拔 2400m</span>
+                </div>
+                <div class="type-item">
+                    <span class="type-label">标注</span>
+                    <span class="type-sample size-12">2026.04.26</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Card hover effect
+        document.querySelectorAll('.sticker-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+    </script>
+</body>
+</html>
