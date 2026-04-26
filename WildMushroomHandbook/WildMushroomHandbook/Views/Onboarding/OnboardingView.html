@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>野生菌数字手帐 - 引导页</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      /* 核心色板 - 森林系 */
+      --forest-deep: #1a2f23;
+      --forest-mid: #2d4a3e;
+      --forest-light: #4a7c59;
+      --forest-pale: #8fb996;
+
+      /* 纸张色系 */
+      --paper-cream: #f5f1e8;
+      --paper-warm: #ebe4d4;
+      --paper-aged: #d9d0bf;
+
+      /* 点缀色 */
+      --accent-rust: #b5523c;
+      --accent-gold: #c9a84c;
+      --accent-ink: #2c3e50;
+
+      /* 危险色 */
+      --danger-red: #c0392b;
+      --danger-pale: #f5b7b1;
+
+      /* 字体 */
+      --font-display: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+      --font-body: 'Noto Serif SC', serif;
+      --font-hand: cursive;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--forest-deep);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    /* iPhone 框架 */
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: var(--paper-cream);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 12px #1a1a1a,
+        0 0 0 14px #333,
+        0 30px 60px rgba(0,0,0,0.4);
+    }
+
+    /* 纸张纹理叠加 */
+    .paper-texture {
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Dynamic Island */
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 37px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 200;
+    }
+
+    /* 状态栏 */
+    .status-bar {
+      position: absolute;
+      top: 16px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 28px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--forest-deep);
+      z-index: 150;
+    }
+
+    .status-bar .time { margin-left: 4px; }
+    .status-bar .icons { display: flex; gap: 4px; margin-right: 4px; }
+
+    /* 内容区 */
+    .screen-content {
+      position: absolute;
+      top: 54px;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      overflow: hidden;
+    }
+
+    /* 底部 Home Indicator */
+    .home-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background: var(--forest-deep);
+      border-radius: 3px;
+      opacity: 0.3;
+      z-index: 200;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // ==================== 数据 ====================
+    const onboardingData = [
+      {
+        id: 'welcome',
+        type: 'welcome',
+        title: '野生菌手帐',
+        subtitle: '记录每一次与自然的相遇',
+        description: '探索 · 识别 · 收藏',
+        illustration: 'leaf'
+      },
+      {
+        id: 'identify',
+        type: 'feature',
+        title: '智能识别',
+        subtitle: '一拍即知',
+        description: '拍摄野生菌照片，AI 即刻识别物种，并提供专业的毒性风险评估',
+        illustration: 'camera',
+        accent: 'green'
+      },
+      {
+        id: 'defend',
+        type: 'warning',
+        title: '防御性预警',
+        subtitle: '安全第一',
+        description: '致命毒菌自动触发警告，滑动确认后才能查看详情，保护你和家人',
+        illustration: 'shield',
+        accent: 'red'
+      },
+      {
+        id: 'collect',
+        type: 'feature',
+        title: '数字手帐',
+        subtitle: '贴纸收藏',
+        description: '每一次识别都是一张精美贴纸，构建你的专属野生菌图谱',
+        illustration: 'book',
+        accent: 'gold'
+      }
+    ];
+
+    // ==================== 组件 ====================
+
+    // 贴纸装饰组件
+    const StickerDecor = ({ x, y, rotation, size = 60, type = 'leaf' }) => {
+      const stickers = {
+        leaf: '🌿',
+        mushroom: '🍄',
+        flower: '🌸',
+        stamp: '📮',
+        tape: '📜'
+      };
+
+      return (
+        <div style={{
+          position: 'absolute',
+          left: x,
+          top: y,
+          transform: `rotate(${rotation}deg)`,
+          fontSize: size,
+          opacity: 0.15,
+          filter: 'grayscale(0.3)',
+          pointerEvents: 'none'
+        }}>
+          {stickers[type]}
+        </div>
+      );
+    };
+
+    // 纸胶带装饰
+    const WashiTape = ({ top, left, width, rotation, color = '#b5523c' }) => (
+      <div style={{
+        position: 'absolute',
+        top,
+        left,
+        width,
+        height: 24,
+        background: color,
+        opacity: 0.7,
+        transform: `rotate(${rotation}deg)`,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        pointerEvents: 'none'
+      }}>
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: `repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 4px,
+            rgba(255,255,255,0.2) 4px,
+            rgba(255,255,255,0.2) 8px
+          )`
+        }} />
+      </div>
+    );
+
+    // 手写文字装饰
+    const HandwrittenNote = ({ text, x, y, rotation = -5 }) => (
+      <div style={{
+        position: 'absolute',
+        left: x,
+        top: y,
+        transform: `rotate(${rotation}deg)`,
+        fontFamily: 'cursive',
+        fontSize: 14,
+        color: 'var(--accent-rust)',
+        opacity: 0.6,
+        pointerEvents: 'none'
+      }}>
+        {text}
+      </div>
+    );
+
+    // 图标组件
+    const FeatureIcon = ({ type, size = 80, color = 'var(--forest-mid)' }) => {
+      const icons = {
+        leaf: (
+          <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+            <path d="M32 8c-12 4-20 16-20 28 0 8 4 14 10 18 6-2 12-8 16-16 4-8 4-20-6-30z"
+                  stroke={color} strokeWidth="3" fill="none"/>
+            <path d="M32 8v32M22 20c4 8 10 12 10 20"
+                  stroke={color} strokeWidth="2" opacity="0.6"/>
+          </svg>
+        ),
+        camera: (
+          <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+            <rect x="12" y="18" width="40" height="30" rx="4" stroke={color} strokeWidth="3"/>
+            <circle cx="32" cy="33" r="10" stroke={color} strokeWidth="3"/>
+            <circle cx="32" cy="33" r="4" fill={color}/>
+            <rect x="40" y="22" width="8" height="4" rx="1" fill={color}/>
+          </svg>
+        ),
+        shield: (
+          <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+            <path d="M32 6l18 8v16c0 12-8 20-18 26-10-6-18-14-18-26V14l18-8z"
+                  stroke={color} strokeWidth="3" fill="none"/>
+            <path d="M26 32l4 4 10-10" stroke={color} strokeWidth="3" fill="none"/>
+          </svg>
+        ),
+        book: (
+          <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+            <path d="M10 12h20c4 0 6 2 6 6v34c0-4-2-6-6-6H10V12z"
+                  stroke={color} strokeWidth="3" fill="none"/>
+            <path d="M54 12H34c-4 0-6 2-6 6v34c0-4 2-6 6-6h20V12z"
+                  stroke={color} strokeWidth="3" fill="none"/>
+            <line x1="32" y1="18" x2="32" y2="46" stroke={color} strokeWidth="2" opacity="0.4"/>
+          </svg>
+        )
+      };
+      return icons[type] || null;
+    };
+
+    // 欢迎页
+    const WelcomeScreen = ({ data, onEnter }) => (
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'linear-gradient(135deg, var(--paper-cream) 0%, var(--paper-warm) 100%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 40
+      }}>
+        {/* 装饰 */}
+        <StickerDecor x={20} y={80} rotation={-15} size={50} type="leaf" />
+        <StickerDecor x={280} y={120} rotation={20} size={40} type="mushroom" />
+        <StickerDecor x={30} y={600} rotation={10} size={35} type="flower" />
+        <StickerDecor x={290} y={580} rotation={-25} size={45} type="stamp" />
+
+        <WashiTape top={60} left={-10} width={80} rotation={15} color="var(--forest-light)" />
+        <WashiTape top={700} right={-20} width={100} rotation={-12} color="var(--accent-gold)" />
+
+        <HandwrittenNote text="2026.春" x={270} y={100} rotation={8} />
+
+        {/* 主图标 */}
+        <div style={{
+          width: 140,
+          height: 140,
+          background: 'var(--forest-deep)',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: 32,
+          boxShadow: '0 8px 32px rgba(26, 47, 35, 0.3)'
+        }}>
+          <FeatureIcon type="leaf" size={70} color="var(--paper-cream)" />
+        </div>
+
+        {/* 标题 */}
+        <h1 style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: 36,
+          color: 'var(--forest-deep)',
+          marginBottom: 8,
+          letterSpacing: 4,
+          textShadow: '2px 2px 0 var(--paper-aged)'
+        }}>
+          {data.title}
+        </h1>
+
+        {/* 副标题 */}
+        <p style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: 16,
+          color: 'var(--forest-mid)',
+          marginBottom: 48,
+          letterSpacing: 2
+        }}>
+          {data.subtitle}
+        </p>
+
+        {/* 描述 */}
+        <p style={{
+          fontFamily: 'cursive',
+          fontSize: 18,
+          color: 'var(--accent-rust)',
+          opacity: 0.8,
+          marginBottom: 60
+        }}>
+          {data.description}
+        </p>
+
+        {/* 开始按钮 */}
+        <button onClick={onEnter} style={{
+          background: 'var(--forest-deep)',
+          color: 'var(--paper-cream)',
+          border: 'none',
+          padding: '16px 48px',
+          borderRadius: 30,
+          fontFamily: 'var(--font-body)',
+          fontSize: 18,
+          cursor: 'pointer',
+          boxShadow: '0 4px 20px rgba(26, 47, 35, 0.3)',
+          transition: 'transform 0.2s, box-shadow 0.2s'
+        }}>
+          开始探索
+        </button>
+
+        {/* 底部装饰线 */}
+        <div style={{
+          position: 'absolute',
+          bottom: 80,
+          width: 120,
+          height: 2,
+          background: 'linear-gradient(90deg, transparent, var(--forest-light), transparent)'
+        }} />
+      </div>
+    );
+
+    // 功能介绍页
+    const FeatureScreen = ({ data, index }) => {
+      const accentColors = {
+        green: { main: 'var(--forest-light)', light: 'var(--forest-pale)' },
+        red: { main: 'var(--danger-red)', light: 'var(--danger-pale)' },
+        gold: { main: 'var(--accent-gold)', light: '#f4e4b5' }
+      };
+      const accent = accentColors[data.accent] || accentColors.green;
+
+      return (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(180deg, var(--paper-cream) 0%, var(--paper-warm) 100%)',
+          padding: 40,
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          {/* 装饰 */}
+          <StickerDecor x={280} y={60} rotation={15} size={40} type="mushroom" />
+          <WashiTape top={50} left={-20} width={70} rotation={12} color={accent.main} />
+
+          {/* 步骤指示 */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            marginBottom: 40
+          }}>
+            <span style={{
+              width: 32,
+              height: 32,
+              background: accent.main,
+              color: 'white',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 16,
+              fontWeight: 600
+            }}>
+              {index + 1}
+            </span>
+            <span style={{
+              fontFamily: 'cursive',
+              fontSize: 14,
+              color: accent.main,
+              opacity: 0.8
+            }}>
+              Step {index + 1}
+            </span>
+          </div>
+
+          {/* 图标区域 */}
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <div style={{
+              width: 160,
+              height: 160,
+              background: `linear-gradient(135deg, ${accent.light} 0%, var(--paper-cream) 100%)`,
+              borderRadius: 40,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: `0 8px 40px ${accent.main}33`,
+              transform: 'rotate(-3deg)',
+              border: `3px solid ${accent.main}22`
+            }}>
+              <FeatureIcon type={data.illustration} size={80} color={accent.main} />
+            </div>
+          </div>
+
+          {/* 文字区域 */}
+          <div style={{ marginTop: 'auto' }}>
+            <h2 style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 28,
+              color: 'var(--forest-deep)',
+              marginBottom: 8,
+              letterSpacing: 2
+            }}>
+              {data.title}
+            </h2>
+
+            <p style={{
+              fontFamily: 'cursive',
+              fontSize: 18,
+              color: accent.main,
+              marginBottom: 16
+            }}>
+              {data.subtitle}
+            </p>
+
+            <p style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: 15,
+              color: 'var(--forest-mid)',
+              lineHeight: 1.8
+            }}>
+              {data.description}
+            </p>
+          </div>
+
+          {/* 手写标注 */}
+          <HandwrittenNote
+            text={data.accent === 'red' ? '⚠️ 注意安全' : '✨ 核心功能'}
+            x={260}
+            y={500}
+            rotation={-8}
+          />
+        </div>
+      );
+    };
+
+    // 主应用
+    const App = () => {
+      const [currentScreen, setCurrentScreen] = useState('welcome');
+
+      const handleEnter = () => {
+        setCurrentScreen('identify');
+      };
+
+      const handleNext = () => {
+        const screens = ['identify', 'defend', 'collect', 'complete'];
+        const currentIndex = screens.indexOf(currentScreen);
+        if (currentIndex < screens.length - 1) {
+          setCurrentScreen(screens[currentIndex + 1]);
+        }
+      };
+
+      const handlePrev = () => {
+        const screens = ['welcome', 'identify', 'defend', 'collect'];
+        const currentIndex = screens.indexOf(currentScreen);
+        if (currentIndex > 0) {
+          setCurrentScreen(screens[currentIndex - 1]);
+        }
+      };
+
+      const renderScreen = () => {
+        if (currentScreen === 'welcome') {
+          return (
+            <WelcomeScreen
+              data={onboardingData[0]}
+              onEnter={handleEnter}
+            />
+          );
+        }
+
+        if (currentScreen === 'complete') {
+          return (
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(135deg, var(--forest-deep) 0%, var(--forest-mid) 100%)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 40,
+              color: 'var(--paper-cream)'
+            }}>
+              <div style={{
+                width: 100,
+                height: 100,
+                background: 'var(--accent-gold)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 32
+              }}>
+                <span style={{ fontSize: 50 }}>✓</span>
+              </div>
+              <h1 style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 32,
+                marginBottom: 16
+              }}>
+                准备就绪
+              </h1>
+              <p style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: 16,
+                opacity: 0.8,
+                textAlign: 'center',
+                marginBottom: 40
+              }}>
+                开启你的野生菌探索之旅吧
+              </p>
+              <button
+                onClick={() => setCurrentScreen('welcome')}
+                style={{
+                  background: 'var(--accent-gold)',
+                  color: 'var(--forest-deep)',
+                  border: 'none',
+                  padding: '16px 48px',
+                  borderRadius: 30,
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 18,
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                开始使用
+              </button>
+            </div>
+          );
+        }
+
+        const screenIndex = onboardingData.findIndex(d => d.id === currentScreen);
+        return (
+          <FeatureScreen
+            data={onboardingData[screenIndex]}
+            index={screenIndex - 1}
+          />
+        );
+      };
+
+      return (
+        <div className="phone-frame">
+          <div className="paper-texture" />
+          <div className="dynamic-island" />
+          <div className="status-bar">
+            <span className="time">9:41</span>
+            <div className="icons">
+              <span>📶</span>
+              <span>🔋</span>
+            </div>
+          </div>
+
+          <div className="screen-content">
+            {renderScreen()}
+          </div>
+
+          {/* 页面指示器 */}
+          {currentScreen !== 'welcome' && currentScreen !== 'complete' && (
+            <div style={{
+              position: 'absolute',
+              bottom: 100,
+              left: 0,
+              right: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              gap: 8,
+              zIndex: 100
+            }}>
+              {['identify', 'defend', 'collect'].map((id, i) => (
+                <div
+                  key={id}
+                  onClick={() => setCurrentScreen(id)}
+                  style={{
+                    width: currentScreen === id ? 24 : 8,
+                    height: 8,
+                    borderRadius: 4,
+                    background: currentScreen === id ? 'var(--forest-deep)' : 'var(--forest-light)',
+                    opacity: currentScreen === id ? 1 : 0.4,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s'
+                  }}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* 导航按钮 */}
+          {currentScreen !== 'welcome' && currentScreen !== 'complete' && (
+            <div style={{
+              position: 'absolute',
+              bottom: 40,
+              left: 0,
+              right: 0,
+              display: 'flex',
+              justifyContent: 'space-between',
+              padding: '0 32px',
+              zIndex: 100
+            }}>
+              <button
+                onClick={handlePrev}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--forest-mid)',
+                  fontSize: 16,
+                  cursor: 'pointer',
+                  fontFamily: 'var(--font-body)'
+                }}
+              >
+                ← 上一步
+              </button>
+              <button
+                onClick={handleNext}
+                style={{
+                  background: 'var(--forest-deep)',
+                  color: 'var(--paper-cream)',
+                  border: 'none',
+                  padding: '12px 24px',
+                  borderRadius: 20,
+                  fontSize: 16,
+                  cursor: 'pointer',
+                  fontFamily: 'var(--font-body)'
+                }}
+              >
+                继续 →
+              </button>
+            </div>
+          )}
+
+          <div className="home-indicator" />
+        </div>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

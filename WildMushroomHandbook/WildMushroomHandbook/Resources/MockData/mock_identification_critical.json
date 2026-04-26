@@ -1,0 +1,38 @@
+{
+  "request_id": "req_handbook_002",
+  "processing_results": {
+    "original_image_url": "mock_images/amanita_verna_original.jpg",
+    "sticker_asset_url": "mock_images/amanita_verna_sticker.png"
+  },
+  "action_state": {
+    "action_required": "SWIPE_TO_UNLOCK",
+    "prompt_message": "检测到致命毒素特征，请滑动确认已知悉风险"
+  },
+  "risk_assessment": {
+    "risk_level": "CRITICAL",
+    "is_toxic_suspected": true,
+    "system_warning": "警告：检测到致命毒素特征，绝不可食用！手帐已标注为禁忌级资产。"
+  },
+  "identification_results": [
+    {
+      "species_id": "mush_042",
+      "common_name": "白毒伞",
+      "scientific_name": "Amanita verna",
+      "match_probability": 0.88,
+      "rarity_level": "COMMON",
+      "key_visual_features": ["白色菌盖", "菌环", "菌托"],
+      "toxic_twins": [
+        {
+          "twin_id": "mush_105",
+          "twin_name": "白马鞍菌",
+          "comparison_point": "看是否有菌托。白毒伞有明显的菌托，白马鞍菌没有。"
+        }
+      ]
+    }
+  ],
+  "handbook_metadata": {
+    "collection_timestamp": "2026-04-25 14:20:00",
+    "location_altitude": "1800m",
+    "region": "YUNNAN"
+  }
+}
