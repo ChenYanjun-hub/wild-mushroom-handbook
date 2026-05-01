@@ -52,7 +52,7 @@ struct SplashScreenView: View {
 
                 // 标题
                 VStack(spacing: 8) {
-                    Text("野生菌手帐")
+                    Text("MOO-菇手帐")
                         .font(.custom("ZCOOL XiaoWei", size: 32))
                         .foregroundColor(.paperCream)
                         .opacity(showText ? 1 : 0)

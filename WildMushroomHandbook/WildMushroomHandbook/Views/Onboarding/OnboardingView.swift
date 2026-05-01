@@ -120,7 +120,7 @@ struct WelcomePage: View {
 
             // 标题
             VStack(spacing: 8) {
-                Text("野生菌手帐")
+                Text("MOO-菇手帐")
                     .font(.custom("ZCOOL XiaoWei", size: 36))
                     .foregroundColor(.forestDeep)
                     .letterSpacing(4)

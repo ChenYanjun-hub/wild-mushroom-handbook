@@ -33,7 +33,7 @@ struct HandbookMainView: View {
                     }
                 }
             }
-            .navigationTitle("野生菌手帐")
+            .navigationTitle("MOO-菇手帐")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

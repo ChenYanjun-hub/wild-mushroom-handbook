@@ -84,7 +84,7 @@ struct CameraView: View {
         VStack(spacing: 0) {
             // 顶部区域
             HStack {
-                Text("野生菌拍摄")
+                Text("MOO-菇拍摄")
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundStyle(.white)

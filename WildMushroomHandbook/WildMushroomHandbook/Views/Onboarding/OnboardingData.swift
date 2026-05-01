@@ -33,7 +33,7 @@ extension OnboardingPage {
         OnboardingPage(
             id: "welcome",
             type: .welcome,
-            title: "野生菌手帐",
+            title: "MOO-菇手帐",
             subtitle: "记录每一次与自然的相遇",
             description: "探索 · 识别 · 收藏",
             iconName: "leaf.fill",
