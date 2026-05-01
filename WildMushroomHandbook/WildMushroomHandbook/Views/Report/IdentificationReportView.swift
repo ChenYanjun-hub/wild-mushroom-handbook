@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct IdentificationReportView: View {
     let identification: MushroomIdentification
+    var stickerImage: UIImage? = nil
     let onAddToHandbook: () -> Void
     let onDismiss: () -> Void
 
@@ -135,8 +137,21 @@ struct IdentificationReportView: View {
             }
 
             VStack(spacing: 12) {
-                // 尝试加载贴纸图片
-                if let image = ImageCacheService.shared.loadImage(from: identification.stickerUrl) {
+                // 优先使用传入的贴纸图片，否则尝试从缓存加载
+                if let stickerImage = stickerImage {
+                    ZStack {
+                        Image(uiImage: stickerImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 180)
+                            .padding()
+
+                        // 危险覆盖
+                        if isDangerous {
+                            dangerOverlay
+                        }
+                    }
+                } else if let image = ImageCacheService.shared.loadImage(from: identification.stickerUrl) {
                     ZStack {
                         Image(uiImage: image)
                             .resizable()

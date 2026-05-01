@@ -18,10 +18,25 @@ struct CameraView: View {
     // 真实相机相关状态
     @State private var showCameraPicker = false
     @State private var capturedImage: UIImage?
+    @State private var processedSticker: UIImage?
     @State private var cameraPermissionGranted = false
     @State private var showPermissionAlert = false
 
+    // 照片确认状态
+    @State private var showConfirmationPreview = false
+
+    // 处理步骤
+    @State private var processingStep: ProcessingStep = .idle
+
     private let cameraService = CameraService.shared
+    private let stickerProcessor = StickerProcessorService.shared
+
+    enum ProcessingStep {
+        case idle
+        case removingBackground
+        case addingBorder
+        case identifying
+    }
 
     var body: some View {
         NavigationStack {
@@ -31,11 +46,12 @@ struct CameraView: View {
 
                 if isProcessing {
                     // 处理中状态
-                    ProcessingView()
+                    ProcessingView(step: processingStep)
                 } else if showReport, let identification = currentIdentification {
                     // 识别报告页
                     IdentificationReportView(
                         identification: identification,
+                        stickerImage: processedSticker,
                         onAddToHandbook: {
                             addToHandbook(identification)
                             showReport = false
@@ -44,6 +60,9 @@ struct CameraView: View {
                             showReport = false
                         }
                     )
+                } else if showConfirmationPreview, let image = capturedImage {
+                    // 照片确认预览
+                    confirmationPreview(image)
                 } else {
                     // 相机界面
                     cameraInterface
@@ -59,7 +78,8 @@ struct CameraView: View {
             }
             .onChange(of: capturedImage) { newImage in
                 if let image = newImage {
-                    processCapturedImage(image)
+                    // 拍照完成，显示确认预览
+                    showConfirmationPreview = true
                 }
             }
             .alert("相机权限", isPresented: $showPermissionAlert) {
@@ -75,6 +95,93 @@ struct CameraView: View {
             .onAppear {
                 checkCameraPermission()
             }
+        }
+    }
+
+    // MARK: - 照片确认预览
+
+    private func confirmationPreview(_ image: UIImage) -> some View {
+        VStack(spacing: 0) {
+            // 顶部区域
+            HStack {
+                Text("确认照片")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+
+                Spacer()
+            }
+            .padding()
+
+            Spacer()
+
+            // 图片预览
+            ZStack {
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.green, lineWidth: 3)
+                    .frame(width: 300, height: 300)
+
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 300, height: 300)
+                    .clipped()
+                    .cornerRadius(20)
+            }
+
+            Text("照片清晰吗？确认后将生成贴纸效果")
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.8))
+                .padding(.top, 20)
+
+            Spacer()
+
+            // 底部按钮
+            HStack(spacing: 40) {
+                // 重拍按钮
+                Button {
+                    capturedImage = nil
+                    showConfirmationPreview = false
+                    openCamera()
+                } label: {
+                    VStack(spacing: 8) {
+                        ZStack {
+                            Circle()
+                                .stroke(Color.white, lineWidth: 3)
+                                .frame(width: 60, height: 60)
+
+                            Image(systemName: "arrow.counterclockwise")
+                                .font(.title2)
+                                .foregroundStyle(.white)
+                        }
+                        Text("重拍")
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.8))
+                    }
+                }
+
+                // 确认按钮
+                Button {
+                    showConfirmationPreview = false
+                    processCapturedImage(image)
+                } label: {
+                    VStack(spacing: 8) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 60, height: 60)
+
+                            Image(systemName: "checkmark")
+                                .font(.title2)
+                                .foregroundStyle(.white)
+                        }
+                        Text("确认")
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.8))
+                    }
+                }
+            }
+            .padding(.bottom, 40)
         }
     }
 
@@ -148,16 +255,6 @@ struct CameraView: View {
                         .padding(.bottom, 20)
                 }
                 .frame(width: 280, height: 280)
-
-                // 已拍摄图片预览
-                if let image = capturedImage {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 280, height: 280)
-                        .clipped()
-                        .cornerRadius(20)
-                }
             }
 
             Spacer()
@@ -214,6 +311,7 @@ struct CameraView: View {
     private func openCamera() {
         if cameraPermissionGranted {
             capturedImage = nil
+            processedSticker = nil
             showCameraPicker = true
         } else {
             showPermissionAlert = true
@@ -225,12 +323,35 @@ struct CameraView: View {
     private func processCapturedImage(_ image: UIImage) {
         isProcessing = true
 
-        // 目前使用 Mock 数据，后续接入真实 API
-        // TODO: 将 image 发送到后端识别 API
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            currentIdentification = MockDataService.shared.simulateIdentification(type: mockType)
-            isProcessing = false
-            showReport = true
+        Task {
+            // Step 1: 移除背景
+            await MainActor.run {
+                processingStep = .removingBackground
+            }
+
+            // Step 2: 生成贴纸
+            await MainActor.run {
+                processingStep = .addingBorder
+            }
+
+            let sticker = await stickerProcessor.processToSticker(image)
+
+            // Step 3: 识别（Mock）
+            await MainActor.run {
+                processingStep = .identifying
+            }
+
+            // 模拟识别延迟
+            try? await Task.sleep(nanoseconds: 1_000_000_000)
+
+            // 完成处理
+            await MainActor.run {
+                processedSticker = sticker
+                currentIdentification = MockDataService.shared.simulateIdentification(type: mockType)
+                isProcessing = false
+                showReport = true
+                processingStep = .idle
+            }
         }
     }
 
@@ -278,16 +399,34 @@ struct CornerView: View {
 // MARK: - 处理中视图
 
 struct ProcessingView: View {
+    let step: CameraView.ProcessingStep
     @State private var dots = ""
-    @State private var currentStep = 0
 
-    private let steps = [
-        "分析图像中...",
-        "识别物种特征...",
-        "评估风险等级...",
-        "正在抠图并封装手帐资产...",
-        "生成贴纸样式..."
-    ]
+    private var currentStepText: String {
+        switch step {
+        case .idle:
+            return "准备中..."
+        case .removingBackground:
+            return "正在抠图移除背景..."
+        case .addingBorder:
+            return "生成贴纸效果..."
+        case .identifying:
+            return "识别物种特征..."
+        }
+    }
+
+    private var stepIcon: String {
+        switch step {
+        case .idle:
+            return "circle.dashed"
+        case .removingBackground:
+            return "scissors"
+        case .addingBorder:
+            return "square.on.square"
+        case .identifying:
+            return "leaf.fill"
+        }
+    }
 
     var body: some View {
         VStack(spacing: 24) {
@@ -304,14 +443,14 @@ struct ProcessingView: View {
                     .rotationEffect(.degrees(-90))
                     .rotationAnimation()
 
-                Image(systemName: "leaf.fill")
+                Image(systemName: stepIcon)
                     .font(.title)
                     .foregroundStyle(.green)
             }
 
             // 当前步骤
             VStack(spacing: 8) {
-                Text(steps[currentStep])
+                Text(currentStepText)
                     .font(.headline)
                     .foregroundStyle(.white)
 
@@ -322,23 +461,12 @@ struct ProcessingView: View {
         }
         .onAppear {
             animateDots()
-            animateSteps()
         }
     }
 
     private func animateDots() {
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             dots = dots.count >= 3 ? "" : dots + "."
-        }
-    }
-
-    private func animateSteps() {
-        Timer.scheduledTimer(withTimeInterval: 0.8, repeats: true) { timer in
-            if currentStep < steps.count - 1 {
-                currentStep += 1
-            } else {
-                timer.invalidate()
-            }
         }
     }
 }
