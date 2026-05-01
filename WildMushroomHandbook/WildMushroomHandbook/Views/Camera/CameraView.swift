@@ -6,12 +6,22 @@
 //
 
 import SwiftUI
+import UIKit
+import AVFoundation
 
 struct CameraView: View {
     @State private var isProcessing = false
     @State private var currentIdentification: MushroomIdentification?
     @State private var showReport = false
     @State private var mockType: MockIdentificationType = .random
+
+    // 真实相机相关状态
+    @State private var showCameraPicker = false
+    @State private var capturedImage: UIImage?
+    @State private var cameraPermissionGranted = false
+    @State private var showPermissionAlert = false
+
+    private let cameraService = CameraService.shared
 
     var body: some View {
         NavigationStack {
@@ -40,6 +50,31 @@ struct CameraView: View {
                 }
             }
             .navigationBarHidden(true)
+            .sheet(isPresented: $showCameraPicker) {
+                ImagePicker(
+                    image: $capturedImage,
+                    sourceType: .constant(.camera)
+                )
+                .ignoresSafeArea()
+            }
+            .onChange(of: capturedImage) { newImage in
+                if let image = newImage {
+                    processCapturedImage(image)
+                }
+            }
+            .alert("相机权限", isPresented: $showPermissionAlert) {
+                Button("去设置") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+                Button("取消", role: .cancel) {}
+            } message: {
+                Text("请在设置中允许访问相机以拍摄野生菌照片")
+            }
+            .onAppear {
+                checkCameraPermission()
+            }
         }
     }
 
@@ -113,6 +148,16 @@ struct CameraView: View {
                         .padding(.bottom, 20)
                 }
                 .frame(width: 280, height: 280)
+
+                // 已拍摄图片预览
+                if let image = capturedImage {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 280, height: 280)
+                        .clipped()
+                        .cornerRadius(20)
+                }
             }
 
             Spacer()
@@ -121,7 +166,7 @@ struct CameraView: View {
             VStack(spacing: 20) {
                 // 快门按钮
                 Button {
-                    capturePhoto()
+                    openCamera()
                 } label: {
                     ZStack {
                         Circle()
@@ -131,6 +176,10 @@ struct CameraView: View {
                         Circle()
                             .fill(Color.white)
                             .frame(width: 65, height: 65)
+
+                        Image(systemName: "camera.fill")
+                            .font(.title2)
+                            .foregroundStyle(.black)
                     }
                 }
 
@@ -142,12 +191,42 @@ struct CameraView: View {
         }
     }
 
-    // MARK: - 拍照处理
+    // MARK: - 相机权限检查
 
-    private func capturePhoto() {
+    private func checkCameraPermission() {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        switch status {
+        case .authorized:
+            cameraPermissionGranted = true
+        case .notDetermined:
+            cameraService.requestCameraPermission { granted in
+                cameraPermissionGranted = granted
+            }
+        case .denied, .restricted:
+            cameraPermissionGranted = false
+        @unknown default:
+            cameraPermissionGranted = false
+        }
+    }
+
+    // MARK: - 打开相机
+
+    private func openCamera() {
+        if cameraPermissionGranted {
+            capturedImage = nil
+            showCameraPicker = true
+        } else {
+            showPermissionAlert = true
+        }
+    }
+
+    // MARK: - 处理拍摄的图片
+
+    private func processCapturedImage(_ image: UIImage) {
         isProcessing = true
 
-        // 模拟处理延迟
+        // 目前使用 Mock 数据，后续接入真实 API
+        // TODO: 将 image 发送到后端识别 API
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             currentIdentification = MockDataService.shared.simulateIdentification(type: mockType)
             isProcessing = false
