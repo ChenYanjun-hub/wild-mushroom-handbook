@@ -1,0 +1,38 @@
+{
+  "request_id": "req_handbook_003",
+  "processing_results": {
+    "original_image_url": "mock_images/amanita_muscaria_original.jpg",
+    "sticker_asset_url": "mock_images/amanita_muscaria_sticker.png"
+  },
+  "action_state": {
+    "action_required": "READ_WARNING",
+    "prompt_message": "该物种具有毒性，请仔细阅读警告信息"
+  },
+  "risk_assessment": {
+    "risk_level": "WARNING",
+    "is_toxic_suspected": true,
+    "system_warning": "注意：该物种含有毒素，需谨慎处理，不建议食用。"
+  },
+  "identification_results": [
+    {
+      "species_id": "mush_050",
+      "common_name": "毒蝇伞",
+      "scientific_name": "Amanita muscaria",
+      "match_probability": 0.95,
+      "rarity_level": "UNCOMMON",
+      "key_visual_features": ["红色菌盖", "白色鳞片", "白色菌环"],
+      "toxic_twins": [
+        {
+          "twin_id": "mush_051",
+          "twin_name": "橙盖鹅膏",
+          "comparison_point": "毒蝇伞菌盖有白色鳞片，橙盖鹅膏菌盖光滑"
+        }
+      ]
+    }
+  ],
+  "handbook_metadata": {
+    "collection_timestamp": "2026-04-25 16:45:00",
+    "location_altitude": "2100m",
+    "region": "SICHUAN"
+  }
+}

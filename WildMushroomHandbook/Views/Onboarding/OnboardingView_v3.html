@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>野生菌手帐</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --ink: #0f0f0f;
+      --ink-mid: #4a4a4a;
+      --ink-light: #8a8a8a;
+      --paper: #fcfbf9;
+      --paper-dark: #f0eeea;
+      --forest: #1e3a2f;
+      --forest-light: #3d6b56;
+      --rust: #a84832;
+    }
+
+    body {
+      font-family: 'Noto Serif SC', serif;
+      background: #0a0a0a;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: var(--paper);
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 60px 120px rgba(0,0,0,0.6);
+    }
+
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 37px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 1000;
+    }
+
+    .home-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background: var(--ink);
+      border-radius: 3px;
+      opacity: 0.15;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // ========== 颜色 ==========
+    const c = {
+      ink: '#0f0f0f',
+      inkMid: '#4a4a4a',
+      inkLight: '#8a8a8a',
+      paper: '#fcfbf9',
+      paperDark: '#f0eeea',
+      forest: '#1e3a2f',
+      forestLight: '#3d6b56',
+      rust: '#a84832'
+    };
+
+    // ========== 数据 ==========
+    const pages = [
+      {
+        id: 'welcome',
+        title: '野生菌手帐',
+        subtitle: '记录与自然的每一次相遇',
+        icon: 'leaf'
+      },
+      {
+        id: 'identify',
+        title: '智能识别',
+        subtitle: '拍摄即知',
+        desc: 'AI 识别物种与毒性风险评估',
+        icon: 'camera',
+        color: c.forest
+      },
+      {
+        id: 'warn',
+        title: '防御预警',
+        subtitle: '安全至上',
+        desc: '致命毒菌自动警告提醒',
+        icon: 'shield',
+        color: c.rust
+      },
+      {
+        id: 'collect',
+        title: '数字手帐',
+        subtitle: '贴纸收藏',
+        desc: '构建专属野生菌图谱',
+        icon: 'book',
+        color: c.forestLight
+      }
+    ];
+
+    // ========== 图标 ==========
+    const Icon = ({ name, size = 64, strokeWidth = 1 }) => {
+      const paths = {
+        leaf: (
+          <g fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M32 8 C16 16, 8 32, 8 48 C24 48, 40 40, 48 24 C40 16, 32 8, 32 8" />
+            <path d="M32 8 L32 48" opacity="0.5" />
+            <path d="M24 24 C28 28, 32 32, 32 40" opacity="0.3" />
+          </g>
+        ),
+        camera: (
+          <g fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <rect x="10" y="18" width="44" height="30" rx="4" />
+            <circle cx="32" cy="34" r="9" />
+            <path d="M40 22 L44 22" strokeWidth={strokeWidth * 1.5} />
+          </g>
+        ),
+        shield: (
+          <g fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M32 6 L48 14 L48 28 C48 40, 40 48, 32 54 C24 48, 16 40, 16 28 L16 14 Z" />
+            <path d="M26 32 L30 36 L40 26" />
+          </g>
+        ),
+        book: (
+          <g fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10 12 L26 12 C30 12, 32 14, 32 18 L32 50 C32 46, 30 44, 26 44 L10 44 Z" />
+            <path d="M54 12 L38 12 C34 12, 32 14, 32 18 L32 50 C32 46, 34 44, 38 44 L54 44 Z" />
+          </g>
+        )
+      };
+      return (
+        <svg width={size} height={size} viewBox="0 0 64 64">
+          {paths[name]}
+        </svg>
+      );
+    };
+
+    // ========== 滑动容器 ==========
+    const SwipeContainer = ({ children, onSwipeLeft, onSwipeRight, currentIndex }) => {
+      const containerRef = useRef(null);
+      const [startX, setStartX] = useState(0);
+      const [currentX, setCurrentX] = useState(0);
+      const [isDragging, setIsDragging] = useState(false);
+
+      const handleStart = (e) => {
+        const x = e.touches ? e.touches[0].clientX : e.clientX;
+        setStartX(x);
+        setIsDragging(true);
+      };
+
+      const handleMove = (e) => {
+        if (!isDragging) return;
+        const x = e.touches ? e.touches[0].clientX : e.clientX;
+        setCurrentX(x - startX);
+      };
+
+      const handleEnd = () => {
+        if (!isDragging) return;
+        const threshold = 50;
+        if (currentX < -threshold) onSwipeLeft?.();
+        else if (currentX > threshold) onSwipeRight?.();
+        setCurrentX(0);
+        setIsDragging(false);
+      };
+
+      const offset = isDragging ? currentX : 0;
+
+      return (
+        <div
+          ref={containerRef}
+          onTouchStart={handleStart}
+          onTouchMove={handleMove}
+          onTouchEnd={handleEnd}
+          onMouseDown={handleStart}
+          onMouseMove={handleMove}
+          onMouseUp={handleEnd}
+          onMouseLeave={handleEnd}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            cursor: 'grab',
+            transition: isDragging ? 'none' : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}
+        >
+          {children(offset, isDragging)}
+        </div>
+      );
+    };
+
+    // ========== 页面内容 ==========
+    const PageContent = ({ page, index, offset, isDragging, currentIndex }) => {
+      const isActive = index === currentIndex;
+      const isPrev = index === currentIndex - 1;
+      const isNext = index === currentIndex + 1;
+
+      // 视差计算
+      let translateX = 0;
+      let opacity = 0;
+      let scale = 1;
+
+      if (isActive) {
+        translateX = offset;
+        opacity = 1 - Math.abs(offset) / 200;
+        scale = 1 - Math.abs(offset) / 2000;
+      } else if (isPrev && offset > 0) {
+        translateX = -375 + offset;
+        opacity = offset / 200;
+        scale = 0.95 + offset / 5000;
+      } else if (isNext && offset < 0) {
+        translateX = 375 + offset;
+        opacity = -offset / 200;
+        scale = 0.95 - offset / 5000;
+      }
+
+      if (!isActive && !isPrev && !isNext) return null;
+
+      // 欢迎页
+      if (page.id === 'welcome') {
+        return (
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: c.paper,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transform: `translateX(${translateX}px) scale(${scale})`,
+            opacity: Math.max(0, opacity),
+            transition: isDragging ? 'none' : 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}>
+            {/* Logo 圆环 */}
+            <div style={{
+              width: 100,
+              height: 100,
+              border: `1px solid ${c.ink}`,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 56,
+              color: c.ink
+            }}>
+              <Icon name="leaf" size={40} strokeWidth={0.8} />
+            </div>
+
+            {/* 标题 */}
+            <h1 style={{
+              fontSize: 26,
+              fontWeight: 400,
+              letterSpacing: 6,
+              color: c.ink,
+              marginBottom: 16
+            }}>
+              {page.title}
+            </h1>
+
+            <p style={{
+              fontSize: 12,
+              fontWeight: 300,
+              letterSpacing: 2,
+              color: c.inkMid
+            }}>
+              {page.subtitle}
+            </p>
+
+            {/* 滑动提示 */}
+            <div style={{
+              position: 'absolute',
+              bottom: 140,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              color: c.inkLight
+            }}>
+              <span style={{ fontSize: 11, letterSpacing: 1 }}>左滑开始</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
+        );
+      }
+
+      // 功能页
+      return (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: c.paper,
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '100px 40px 180px',
+          transform: `translateX(${translateX}px) scale(${scale})`,
+          opacity: Math.max(0, opacity),
+          transition: isDragging ? 'none' : 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
+        }}>
+          {/* 编号 */}
+          <p style={{
+            fontSize: 10,
+            fontWeight: 300,
+            letterSpacing: 4,
+            color: c.inkLight,
+            marginBottom: 'auto'
+          }}>
+            0{index} / 03
+          </p>
+
+          {/* 图标 */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 'auto',
+            color: page.color || c.forest
+          }}>
+            <Icon name={page.icon} size={80} strokeWidth={0.8} />
+          </div>
+
+          {/* 文字 */}
+          <div>
+            <h2 style={{
+              fontSize: 28,
+              fontWeight: 400,
+              letterSpacing: 2,
+              color: c.ink,
+              marginBottom: 8
+            }}>
+              {page.title}
+            </h2>
+            <p style={{
+              fontSize: 12,
+              fontWeight: 300,
+              letterSpacing: 2,
+              color: page.color || c.forest,
+              marginBottom: 16
+            }}>
+              {page.subtitle}
+            </p>
+            <p style={{
+              fontSize: 14,
+              fontWeight: 300,
+              lineHeight: 1.7,
+              color: c.inkMid
+            }}>
+              {page.desc}
+            </p>
+          </div>
+        </div>
+      );
+    };
+
+    // ========== 完成页 ==========
+    const CompletePage = ({ offset, isDragging, onEnter }) => (
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: c.forest,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transform: `translateX(${offset}px)`,
+        opacity: Math.max(0, 1 - Math.abs(offset) / 200),
+        transition: isDragging ? 'none' : 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
+      }}>
+        <div style={{
+          width: 72,
+          height: 72,
+          border: `1px solid ${c.paper}`,
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: 40,
+          color: c.paper
+        }}>
+          <svg width={36} height={36} viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth={1}>
+            <path d="M10 24l10 10 18-20" />
+          </svg>
+        </div>
+
+        <h1 style={{
+          fontSize: 24,
+          fontWeight: 400,
+          letterSpacing: 4,
+          color: c.paper,
+          marginBottom: 12
+        }}>
+          准备就绪
+        </h1>
+
+        <p style={{
+          fontSize: 12,
+          fontWeight: 300,
+          letterSpacing: 1,
+          color: c.paper,
+          opacity: 0.6,
+          marginBottom: 48
+        }}>
+          开始探索之旅
+        </p>
+
+        <button
+          onClick={onEnter}
+          style={{
+            background: c.paper,
+            color: c.forest,
+            border: 'none',
+            padding: '16px 48px',
+            fontSize: 12,
+            fontWeight: 400,
+            letterSpacing: 2,
+            cursor: 'pointer'
+          }}
+        >
+          进入
+        </button>
+      </div>
+    );
+
+    // ========== 指示器 ==========
+    const Indicator = ({ current, total }) => (
+      <div style={{
+        position: 'absolute',
+        bottom: 56,
+        left: 0,
+        right: 0,
+        display: 'flex',
+        justifyContent: 'center',
+        gap: 8,
+        zIndex: 100
+      }}>
+        {Array.from({ length: total }).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              width: current === i ? 24 : 6,
+              height: 6,
+              borderRadius: 3,
+              background: current === i ? c.ink : c.inkLight,
+              opacity: current === i ? 1 : 0.3,
+              transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+            }}
+          />
+        ))}
+      </div>
+    );
+
+    // ========== 主应用 ==========
+    const App = () => {
+      const [current, setCurrent] = useState(0);
+      const totalPages = pages.length + 1; // +1 for complete page
+
+      const goNext = () => setCurrent(c => Math.min(totalPages - 1, c + 1));
+      const goPrev = () => setCurrent(c => Math.max(0, c - 1));
+
+      return (
+        <div className="phone-frame">
+          <div className="dynamic-island" />
+
+          <SwipeContainer
+            currentIndex={current}
+            onSwipeLeft={goNext}
+            onSwipeRight={goPrev}
+          >
+            {(offset, isDragging) => (
+              <>
+                {pages.map((page, i) => (
+                  <PageContent
+                    key={page.id}
+                    page={page}
+                    index={i}
+                    offset={offset}
+                    isDragging={isDragging}
+                    currentIndex={current}
+                  />
+                ))}
+
+                {/* 完成页 */}
+                {current === totalPages - 1 && (
+                  <CompletePage
+                    offset={offset}
+                    isDragging={isDragging}
+                    onEnter={() => alert('进入应用')}
+                  />
+                )}
+              </>
+            )}
+          </SwipeContainer>
+
+          {/* 指示器 */}
+          {current > 0 && current < totalPages - 1 && (
+            <Indicator current={current - 1} total={3} />
+          )}
+
+          <div className="home-indicator" />
+        </div>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+{
+  "request_id": "req_handbook_001",
+  "processing_results": {
+    "original_image_url": "mock_images/boletus_edulis_original.jpg",
+    "sticker_asset_url": "mock_images/boletus_edulis_sticker.png"
+  },
+  "action_state": {
+    "action_required": "NONE",
+    "prompt_message": ""
+  },
+  "risk_assessment": {
+    "risk_level": "NORMAL",
+    "is_toxic_suspected": false,
+    "system_warning": ""
+  },
+  "identification_results": [
+    {
+      "species_id": "mush_001",
+      "common_name": "美味牛肝菌",
+      "scientific_name": "Boletus edulis",
+      "match_probability": 0.92,
+      "rarity_level": "COMMON",
+      "key_visual_features": ["棕色菌盖", "白色菌肉", "网状菌柄"],
+      "toxic_twins": [
+        {
+          "twin_id": "mush_002",
+          "twin_name": "苦味牛肝菌",
+          "comparison_point": "品尝菌肉是否苦涩"
+        }
+      ]
+    }
+  ],
+  "handbook_metadata": {
+    "collection_timestamp": "2026-04-25 10:30:00",
+    "location_altitude": "2400m",
+    "region": "YUNNAN"
+  }
+}

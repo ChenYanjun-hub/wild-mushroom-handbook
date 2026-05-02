@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>野生菌手帐</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --ink: #1a1a1a;
+      --ink-light: #666;
+      --ink-muted: #999;
+      --paper: #faf9f7;
+      --paper-warm: #f5f3f0;
+      --accent: #2d4a3e;
+      --accent-light: #4a7c59;
+    }
+
+    body {
+      font-family: 'Noto Serif SC', -apple-system, serif;
+      background: #1a1a1a;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: var(--paper);
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 50px 100px rgba(0,0,0,0.5);
+    }
+
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 37px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 200;
+    }
+
+    .home-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background: var(--ink);
+      border-radius: 3px;
+      opacity: 0.2;
+      z-index: 200;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // ========== 极简色彩系统 ==========
+    const colors = {
+      ink: '#1a1a1a',
+      inkLight: '#666',
+      inkMuted: '#999',
+      paper: '#faf9f7',
+      paperWarm: '#f5f3f0',
+      accent: '#2d4a3e',
+      accentLight: '#4a7c59',
+      warning: '#b5523c'
+    };
+
+    // ========== 极简图标组件 ==========
+    const MinimalIcon = ({ name, size = 48, stroke = 1.5 }) => {
+      const icons = {
+        leaf: (
+          <svg width={size} height={size} viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth={stroke}>
+            <path d="M12 36c0-14 10-24 24-24M12 36c6-2 12-8 16-16" />
+          </svg>
+        ),
+        camera: (
+          <svg width={size} height={size} viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth={stroke}>
+            <rect x="8" y="14" width="32" height="24" rx="3" />
+            <circle cx="24" cy="26" r="7" />
+          </svg>
+        ),
+        shield: (
+          <svg width={size} height={size} viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth={stroke}>
+            <path d="M24 6l14 6v12c0 10-6 16-14 20-8-4-14-10-14-20V12l14-6z" />
+          </svg>
+        ),
+        book: (
+          <svg width={size} height={size} viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth={stroke}>
+            <path d="M8 10h14c3 0 4 2 4 4v26c0-3-1-5-4-5H8V10z" />
+            <path d="M40 10H26c-3 0-4 2-4 4v26c0-3 1-5 4-5h14V10z" />
+          </svg>
+        )
+      };
+      return icons[name] || null;
+    };
+
+    // ========== 欢迎页 ==========
+    const WelcomeScreen = ({ onEnter }) => {
+      const [show, setShow] = useState(false);
+
+      useEffect(() => {
+        setTimeout(() => setShow(true), 100);
+      }, []);
+
+      return (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: colors.paper,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 60
+        }}>
+          {/* Logo - 纯几何 */}
+          <div style={{
+            width: 80,
+            height: 80,
+            border: `1.5px solid ${colors.ink}`,
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 48,
+            opacity: show ? 1 : 0,
+            transform: `scale(${show ? 1 : 0.9})`,
+            transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}>
+            <MinimalIcon name="leaf" size={32} stroke={1} />
+          </div>
+
+          {/* 标题 - 大量留白 */}
+          <div style={{
+            textAlign: 'center',
+            marginBottom: 80,
+            opacity: show ? 1 : 0,
+            transform: `translateY(${show ? 0 : 20}px)`,
+            transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s'
+          }}>
+            <h1 style={{
+              fontSize: 28,
+              fontWeight: 400,
+              letterSpacing: 8,
+              color: colors.ink,
+              marginBottom: 16
+            }}>
+              野生菌手帐
+            </h1>
+            <p style={{
+              fontSize: 13,
+              fontWeight: 300,
+              letterSpacing: 2,
+              color: colors.inkLight
+            }}>
+              记录与自然的每一次相遇
+            </p>
+          </div>
+
+          {/* 按钮 - 极简 */}
+          <button
+            onClick={onEnter}
+            style={{
+              background: colors.ink,
+              color: colors.paper,
+              border: 'none',
+              padding: '16px 40px',
+              fontSize: 13,
+              fontWeight: 400,
+              letterSpacing: 2,
+              cursor: 'pointer',
+              opacity: show ? 1 : 0,
+              transform: `translateY(${show ? 0 : 10}px)`,
+              transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s'
+            }}
+          >
+            开始
+          </button>
+        </div>
+      );
+    };
+
+    // ========== 功能页 ==========
+    const FeatureScreen = ({ title, subtitle, description, iconName, accentColor, index, total }) => {
+      const [show, setShow] = useState(false);
+
+      useEffect(() => {
+        setTimeout(() => setShow(true), 50);
+      }, []);
+
+      return (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: colors.paper,
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '80px 40px 160px'
+        }}>
+          {/* 步骤编号 - 极小 */}
+          <p style={{
+            fontSize: 11,
+            fontWeight: 300,
+            letterSpacing: 3,
+            color: colors.inkMuted,
+            marginBottom: 60
+          }}>
+            {String(index).padStart(2, '0')} / {String(total).padStart(2, '0')}
+          </p>
+
+          {/* 图标 - 居中大尺寸 */}
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <div style={{
+              color: accentColor || colors.accent,
+              opacity: show ? 1 : 0,
+              transform: `scale(${show ? 1 : 0.95})`,
+              transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
+            }}>
+              <MinimalIcon name={iconName} size={96} stroke={1} />
+            </div>
+          </div>
+
+          {/* 文字 - 底部对齐 */}
+          <div style={{
+            opacity: show ? 1 : 0,
+            transform: `translateY(${show ? 0 : 20}px)`,
+            transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.15s'
+          }}>
+            <h2 style={{
+              fontSize: 24,
+              fontWeight: 400,
+              letterSpacing: 2,
+              color: colors.ink,
+              marginBottom: 8
+            }}>
+              {title}
+            </h2>
+            <p style={{
+              fontSize: 13,
+              fontWeight: 300,
+              letterSpacing: 1,
+              color: accentColor || colors.accent,
+              marginBottom: 20
+            }}>
+              {subtitle}
+            </p>
+            <p style={{
+              fontSize: 14,
+              fontWeight: 300,
+              lineHeight: 1.8,
+              color: colors.inkLight
+            }}>
+              {description}
+            </p>
+          </div>
+        </div>
+      );
+    };
+
+    // ========== 完成页 ==========
+    const CompleteScreen = ({ onComplete }) => {
+      const [show, setShow] = useState(false);
+
+      useEffect(() => {
+        setTimeout(() => setShow(true), 100);
+      }, []);
+
+      return (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: colors.accent,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 60
+        }}>
+          <div style={{
+            width: 64,
+            height: 64,
+            border: `1.5px solid ${colors.paper}`,
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 48,
+            color: colors.paper,
+            opacity: show ? 1 : 0,
+            transform: `scale(${show ? 1 : 0.9})`,
+            transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}>
+            <svg width={32} height={32} viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth={1.5}>
+              <path d="M12 24l8 8 16-16" />
+            </svg>
+          </div>
+
+          <h1 style={{
+            fontSize: 24,
+            fontWeight: 400,
+            letterSpacing: 4,
+            color: colors.paper,
+            marginBottom: 12,
+            opacity: show ? 1 : 0,
+            transform: `translateY(${show ? 0 : 20}px)`,
+            transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s'
+          }}>
+            准备就绪
+          </h1>
+
+          <p style={{
+            fontSize: 13,
+            fontWeight: 300,
+            letterSpacing: 1,
+            color: colors.paper,
+            opacity: 0.7,
+            marginBottom: 60,
+            opacity: show ? 0.7 : 0,
+            transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s'
+          }}>
+            开始你的探索之旅
+          </p>
+
+          <button
+            onClick={onComplete}
+            style={{
+              background: colors.paper,
+              color: colors.accent,
+              border: 'none',
+              padding: '16px 40px',
+              fontSize: 13,
+              fontWeight: 400,
+              letterSpacing: 2,
+              cursor: 'pointer',
+              opacity: show ? 1 : 0,
+              transform: `translateY(${show ? 0 : 10}px)`,
+              transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s'
+            }}
+          >
+            进入
+          </button>
+        </div>
+      );
+    };
+
+    // ========== 页面指示器 ==========
+    const PageIndicator = ({ current, total }) => (
+      <div style={{
+        position: 'absolute',
+        bottom: 120,
+        left: 0,
+        right: 0,
+        display: 'flex',
+        justifyContent: 'center',
+        gap: 8
+      }}>
+        {Array.from({ length: total }).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              width: current === i ? 20 : 6,
+              height: 6,
+              borderRadius: 3,
+              background: current === i ? colors.ink : colors.inkMuted,
+              opacity: current === i ? 1 : 0.3,
+              transition: 'all 0.3s'
+            }}
+          />
+        ))}
+      </div>
+    );
+
+    // ========== 主应用 ==========
+    const App = () => {
+      const [page, setPage] = useState(0);
+      const pages = [
+        { type: 'welcome' },
+        { type: 'feature', title: '智能识别', subtitle: '一拍即知', description: '拍摄野生菌照片，AI 即刻识别物种与毒性', icon: 'camera' },
+        { type: 'feature', title: '防御预警', subtitle: '安全至上', description: '致命毒菌自动触发警告，保护你和家人', icon: 'shield', accent: colors.warning },
+        { type: 'feature', title: '数字手帐', subtitle: '贴纸收藏', description: '每一次识别都是一张贴纸，构建专属图谱', icon: 'book' },
+        { type: 'complete' }
+      ];
+
+      const handleNext = () => setPage(p => Math.min(pages.length - 1, p + 1));
+      const handlePrev = () => setPage(p => Math.max(0, p - 1));
+
+      const renderPage = () => {
+        const p = pages[page];
+        if (p.type === 'welcome') {
+          return <WelcomeScreen onEnter={handleNext} />;
+        }
+        if (p.type === 'complete') {
+          return <CompleteScreen onComplete={() => alert('完成引导')} />;
+        }
+        return (
+          <FeatureScreen
+            title={p.title}
+            subtitle={p.subtitle}
+            description={p.description}
+            iconName={p.icon}
+            accentColor={p.accent}
+            index={page}
+            total={pages.length - 1}
+          />
+        );
+      };
+
+      return (
+        <div className="phone-frame">
+          <div className="dynamic-island" />
+          {renderPage()}
+          {page > 0 && page < pages.length - 1 && (
+            <>
+              <PageIndicator current={page - 1} total={3} />
+              <div style={{
+                position: 'absolute',
+                bottom: 50,
+                left: 0,
+                right: 0,
+                display: 'flex',
+                justifyContent: 'space-between',
+                padding: '0 40px'
+              }}>
+                <button
+                  onClick={handlePrev}
+                  style={{ background: 'none', border: 'none', fontSize: 13, color: colors.inkMuted, cursor: 'pointer' }}
+                >
+                  返回
+                </button>
+                <button
+                  onClick={handleNext}
+                  style={{ background: 'none', border: 'none', fontSize: 13, color: colors.ink, cursor: 'pointer' }}
+                >
+                  继续
+                </button>
+              </div>
+            </>
+          )}
+          <div className="home-indicator" />
+        </div>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
